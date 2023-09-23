@@ -219,7 +219,10 @@ async function processWebhook(req, res) {
             const location_email = location_array.locations[0].email;
             const location_phone = location_array.locations[0].phone;
 
-            const live_transfer_link = `https://paragonapis.com/webhooks/lt.php?q=${contact_id}:${location_id}`.replace(/\s/g, '');
+            // To do: Live transfer link
+            // const live_transfer_link = `https://paragonapis.com/webhooks/lt.php?q=${contact_id}:${location_id}`.replace(/\s/g, '');
+            const live_transfer_link = ''
+
 
             const xml = `<Lead>
               <Email>${email}</Email>
