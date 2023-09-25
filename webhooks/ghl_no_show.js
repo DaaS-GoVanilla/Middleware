@@ -18,8 +18,10 @@ async function handleRequest(req, res) {
      // Replace this with the logic to load keys from a CSV file
       const keys = [];
 
+      let timeline = '';
+      let re_agent = '';
       let exists = false;
-      let apiKey = false;
+      let api_key = false;
       let calendar_booking_link = '';
       let special_notes = '';
      
@@ -28,7 +30,8 @@ async function handleRequest(req, res) {
             if (value[1] === location_id) {
                 exists = true;
                 api_key = value[2];
-                
+                calendar_booking_link =value[3];
+                special_notes =value[4];
             }
         });
     }
