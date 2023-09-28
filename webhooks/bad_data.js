@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-async function handleRequest(req, res) {
+async function badData(req, res) {
   try {
     const data = req.body;
 

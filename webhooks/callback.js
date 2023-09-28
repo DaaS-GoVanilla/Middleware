@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-async function Callback(req, res) {
+async function callback(req, res) {
   try {
     const data = req.body;
 
