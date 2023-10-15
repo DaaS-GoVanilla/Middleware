@@ -309,4 +309,4 @@ async function createLeadVS(xmlPayload) {
     }
 }
 
-module.exports = { ghltoVanillasoft }
+module.exports = ghltoVanillasoft

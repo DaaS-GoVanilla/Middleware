@@ -78,4 +78,4 @@ async function createContactNote(contact_id, contact_json, api_key) {
   }
 }
 
-module.exports = { callback }
+module.exports = callback

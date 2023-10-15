@@ -80,4 +80,4 @@ async function getLocationDetails(location_id, api_key) {
     }
 }
 
-module.exports = { ghlNoShow }
+module.exports = ghlNoShow

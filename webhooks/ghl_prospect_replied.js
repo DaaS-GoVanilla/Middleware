@@ -78,4 +78,4 @@ async function getLocationDetails(location_id, api_key) {
     }
 }
 
-module.exports = { ghlProspectReplied }
+module.exports = ghlProspectReplied
