@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-async function processWebhook(req, res) {
+async function ghltoVanillasoft(req, res) {
     try {
         const data = req.body;
 
@@ -309,13 +309,4 @@ async function createLeadVS(xmlPayload) {
     }
 }
 
-// Express.js app setup
-// const express = require('express');
-// const app = express();
-// app.use(express.json());
-
-// Start the server
-// const port = process.env.PORT || 3000;
-// app.listen(port, () => {
-//   console.log(`Server is running on port ${port}`);
-// });
+module.exports = { ghltoVanillasoft }

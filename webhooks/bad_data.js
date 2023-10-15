@@ -77,3 +77,5 @@ async function createContactNote(contact_id, contact_json, api_key) {
     throw new Error(`Error creating contact note: ${error.message}`);
   }
 }
+
+module.exports = { badData }

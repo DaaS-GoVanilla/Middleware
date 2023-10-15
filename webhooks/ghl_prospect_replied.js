@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-async function handleRequest(req, res) {
+async function ghlProspectReplied(req, res) {
     try {
         const data = req.body;
 
@@ -78,13 +78,4 @@ async function getLocationDetails(location_id, api_key) {
     }
 }
 
-// Express.js app setup
-// const express = require('express');
-// const app = express();
-// app.use(express.json());
-
-// Start the server
-// const port = process.env.PORT || 3000;
-// app.listen(port, () => {
-//   console.log(`Server is running on port ${port}`);
-// });
+module.exports = { ghlProspectReplied }

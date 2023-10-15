@@ -1,6 +1,6 @@
 const axios = require('axios');
 
-async function handleRequest(req, res) {
+async function liveTransfer(req, res) {
   try {
     const data = req.body;
 
@@ -77,3 +77,5 @@ async function createContactNote(contact_id, contact_json, api_key) {
     throw new Error(`Error creating contact note: ${error.message}`);
   }
 }
+
+module.exports = { liveTransfer }
