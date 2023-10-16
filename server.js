@@ -94,6 +94,24 @@ app.delete('/api/delete/:apiKey', (req, res) => {
     res.json({ message: 'Record deleted successfully.' });
 });
 
+const users = [
+    { username: 'user1', password: 'password1' },
+    { username: 'user2', password: 'password2' }
+];
+
+app.post('/api/login', (req, res) => {
+    const { username, password } = req.body;
+
+    const user = users.find(u => u.username === username && u.password === password);
+
+    if (user) {
+        res.json({ message: 'Login successful' });
+    } else {
+        res.status(401).json({ message: 'Invalid username or password' });
+    }
+});
+
+
 // Start the server
 const PORT = 3000;
 
