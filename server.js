@@ -8,35 +8,51 @@ const app = express();
 app.use(express.json());
 
 // Helper function to read the CSV file and return the data as an array
-function readCSVFile() {
+async function readCSVFile() {
     const data = [];
     try {
-        const csvFile = fs.readFileSync('existing-data.csv', 'utf8');
-        csvParser(csvFile, { headers: true })
-            .on('data', (row) => {
-                data.push(row);
-            })
-            .on('end', () => {
-                console.log('CSV file successfully processed.');
-            });
+        const csvFile = fs.createReadStream('existing-data.csv', 'utf8');
+        await new Promise((resolve, reject) => {
+            csvFile
+                .pipe(csvParser({ headers: true, skipLines: 1 }))
+                .on('data', (row) => {
+                    data.push({
+                        'Client Company Name': row['_0'],
+                        'Location ID': row['_1'],
+                        'API key': row['_2'],
+                        'Calendar Link': row['_3'],
+                        'Special Notes': row['_4'],
+                        'Live Transfer Form': row['_5'],
+                        'Booked Form': row['_6']
+                    });
+                })
+                .on('end', () => {
+                    console.log('CSV file successfully processed.');
+                    resolve();
+                })
+                .on('error', (error) => {
+                    reject(error);
+                });
+        });
+        return data;
     } catch (error) {
-        console.error('Error reading CSV file:', error.message);
+        throw new Error(`Error reading CSV file: ${error.message}`);
     }
-    return data;
 }
 
 // Helper function to update the CSV file with the modified data
 function updateCSVFile(data) {
     const ws = fs.createWriteStream('existing-data.csv');
+    ws.write('Client Company Name, Location ID, API, Calendar Link, Special Notes, Live Transfer Form, Appt Booked Form\n')
     data.forEach((record) => {
-        ws.write(`${record['Client Company Name']},${record['Location ID']},${record['API key']},${record['Calendar Link']},${record['Special Notes']},${record['Live Transfer Form']},${record['Booked Form']}\n`);
+        ws.write(`${record['Client Company Name']}, ${record['Location ID']}, ${record['API key']}, ${record['Calendar Link']}, ${record['Special Notes']}, ${record['Live Transfer Form']}, ${record['Booked Form']}\n`);
     });
     ws.end();
 }
 
 // Create a new record in the CSV database
-app.post('/api/create', (req, res) => {
-    const data = readCSVFile();
+app.post('/api/create', async (req, res) => {
+    const data = await readCSVFile();
     const { ClientCompanyName, LocationID, APIKey, CalendarLink, SpecialNotes, LiveTransferForm, BookedForm } = req.body;
     const existingRecord = data.find(record => record['API key'] === APIKey);
     if (existingRecord) {
@@ -56,8 +72,8 @@ app.post('/api/create', (req, res) => {
 });
 
 // Update an existing record in the CSV database
-app.put('/api/update/:apiKey', (req, res) => {
-    const data = readCSVFile();
+app.put('/api/update/:apiKey', async (req, res) => {
+    const data = await readCSVFile();
     const apiKey = req.params.apiKey;
     const { ClientCompanyName, LocationID, CalendarLink, SpecialNotes, LiveTransferForm, BookedForm } = req.body;
 
