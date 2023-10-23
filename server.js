@@ -1,12 +1,13 @@
 const express = require('express');
 const csvParser = require('csv-parser');
 const endpoints = require('./webhooks/endpoints');
+const cors = require('cors')
 const fs = require('fs');
 const app = express();
 
 // Middleware to parse JSON request body
 app.use(express.json());
-
+app.use(cors());
 // Helper function to read the CSV file and return the data as an array
 async function readCSVFile() {
     const data = [];
@@ -43,9 +44,9 @@ async function readCSVFile() {
 // Helper function to update the CSV file with the modified data
 function updateCSVFile(data) {
     const ws = fs.createWriteStream('existing-data.csv');
-    ws.write('Client Company Name, Location ID, API, Calendar Link, Special Notes, Live Transfer Form, Appt Booked Form\n')
+    ws.write('Client Company Name,Location ID,API,Calendar Link,Special Notes,Live Transfer Form,Appt Booked Form\n')
     data.forEach((record) => {
-        ws.write(`${record['Client Company Name']}, ${record['Location ID']}, ${record['API key']}, ${record['Calendar Link']}, ${record['Special Notes']}, ${record['Live Transfer Form']}, ${record['Booked Form']}\n`);
+        ws.write(`${record['Client Company Name']},${record['Location ID']},${record['API key']},${record['Calendar Link']},${record['Special Notes']},${record['Live Transfer Form']},${record['Booked Form']}\n`);
     });
     ws.end();
 }
@@ -98,14 +99,15 @@ app.put('/api/update/:apiKey', async (req, res) => {
 });
 
 // Delete a record from the CSV database
-app.delete('/api/delete/:apiKey', (req, res) => {
-    const data = readCSVFile();
+app.delete('/api/delete/:apiKey', async (req, res) => {
+    const data = await readCSVFile();
     const apiKey = req.params.apiKey;
-    const recordIndex = data.findIndex(record => record['API key'] === apiKey);
-    if (recordIndex === -1) {
+    var f;
+    var found = data.some(function (record, index) { f = index; console.log(record['API key']); return record['API key'] === apiKey; });
+    if (!found) {
         return res.status(404).json({ error: 'Record not found.' });
     }
-    data.splice(recordIndex, 1);
+    data.splice(f, 1);
     updateCSVFile(data);
     res.json({ message: 'Record deleted successfully.' });
 });
