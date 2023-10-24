@@ -51,6 +51,11 @@ function updateCSVFile(data) {
     ws.end();
 }
 
+app.get('/api/getallclient', async (req, res) => {
+    const data = await readCSVFile();
+    res.json({ data: data })
+})
+
 // Create a new record in the CSV database
 app.post('/api/create', async (req, res) => {
     const data = await readCSVFile();
@@ -131,7 +136,7 @@ app.post('/api/login', (req, res) => {
 
 
 // Start the server
-const PORT = 3000;
+const PORT = process.env.PORT || 8000;
 
 app.use('/webhooks', endpoints);
 
