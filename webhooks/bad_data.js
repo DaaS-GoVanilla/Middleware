@@ -1,4 +1,5 @@
 const axios = require('axios');
+const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 
 async function badData(req, res) {
   try {
@@ -12,23 +13,9 @@ async function badData(req, res) {
     const contact_id = dataArray.contact.ghl_contact_id;
     const location_id = dataArray.contact.ghl_location_id;
 
-    //To Do: Replace this with the logic to load keys from a CSV file
-    const keys = [];
+    const api_key = await getApiKeyFromGCP(location_id);
 
-    let exists = false;
-    let api_key = '';
-
-
-    if (keys.length > 0) {
-      keys.forEach((value) => {
-        if (value[1] === location_id) {
-          exists = true;
-          api_key = value[2];
-        }
-      });
-    }
-
-    if (exists) {
+    if (api_key) {
       const users_json = await getLocationUsers(location_id, api_key);
       const users = JSON.parse(users_json);
       const user_id = users.users[0].id;
@@ -41,6 +28,19 @@ async function badData(req, res) {
     }
   } catch (error) {
     console.error(error.message);
+  }
+}
+
+async function getApiKeyFromGCP(location_id) {
+  const secretClient = new SecretManagerServiceClient();
+  const secretName = `projects/your-project-id/secrets/api-key-secrets/versions/latest`; // Replace with your project and secret details
+
+  try {
+    const [version] = await secretClient.accessSecretVersion({ name: secretName });
+    return version.payload.data.toString('utf8');
+  } catch (error) {
+    console.error(`Error getting API key from GCP Secret Manager: ${error.message}`);
+    return null;
   }
 }
 
