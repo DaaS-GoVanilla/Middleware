@@ -367,3 +367,64 @@ const ghlProspectReplied = async (req, res) => {
         return res.status(500).send('Internal Server Error');
     }
 }
+
+//Case 8 - 'live transfer'
+const liveTransfer = async (req, res) => {
+
+    const contact_id = req.body.contact.ghl_contact_id;
+    const location_id = req.body.contact.ghl_location_id;
+    const comment = req.body.contact.comment
+    const result = await getEntity(location_id);
+    const api_key = result[0]['APIKey'];
+
+    try {
+        if (api_key) {
+            console.log(api_key)
+            const contact_arr = { body: 'LIVE TRANS - Live Transfer' };
+            const contact_json = JSON.stringify(contact_arr);
+            console.log(contact_json)
+
+            const customField = await axios.get(
+                `https://rest.gohighlevel.com/v1/custom-fields`,
+                {
+                    headers: {
+                        Authorization: `Bearer ${api_key}`,
+                    },
+                }
+            );
+
+            const index = customField.data['customFields'].findIndex(x => x['name'] === 'ISA Call Notes')
+            const field_id = customField.data['customFields'][index]
+
+            const note_arr = {
+                body: {
+
+                }
+            }
+
+            field_id.body[field_id] = comment
+
+            const note_json = JSON.stringify(note_arr)
+
+            await axios.put(
+                `https://rest.gohighlevel.com/v1/contacts/${contact_id}`,
+                note_json,
+                {
+                    headers: {
+                        Authorization: `Bearer ${api_key}`,
+                    },
+                }
+            );
+
+            const response = await createContactNote(contact_id, contact_json, api_key);
+            console.log(response);
+
+            res.sendStatus(200);
+        } else {
+            console.log(`API key not found for location: ${location_id}`);
+            res.status(404).send(`API key not found for location: ${location_id}`);
+        }
+    } catch (error) {
+        res.status(500).send(error);
+    }
+}
