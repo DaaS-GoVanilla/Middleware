@@ -119,6 +119,27 @@ async function createLeadVS(xmlPayload) {
     }
 }
 
+//function to add tag
+async function addTagToContact(contactId, apiKey, tag) {
+    const contactData = {
+        tags: [tag]
+    };
+
+    try {
+        const response = await axios.post(`https://rest.gohighlevel.com/v1/contacts/${contactId}/tags/`, contactData, {
+            headers: {
+                'Authorization': `Bearer ${apiKey}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        console.log(response.data)
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
 //Case 1 - 'baddata'
 const badData = async (req, res) => {
     console.log(req.body);
@@ -452,7 +473,7 @@ const ghltoVanillasoft = async (req, res) => {
         console.log('result');
         const api_key = result[0]['APIKey'];
         const calendar_booking_link = result[0]['CalendarLink'];
-        const special_notes = '';
+        constspecial_notes = result[0]['SpecialNotes'];
         const live_transfer_form = '';
         const appt_booked_form = '';
 
@@ -650,9 +671,9 @@ const ghltoVanillasoft = async (req, res) => {
                           <Mobile>${phone}</Mobile>
                           <LeadSourceName>${source}</LeadSourceName>
                           <Campaign>${campaign}</Campaign>
-                          <GhlLocationID>${'location_id'}</GhlLocationID>
+                          <GhlLocationID>${location_id}</GhlLocationID>
                           <GhlClientID>${contact_id}</GhlClientID>
-                          <SpecialInternalNotesForAgents>${'special_notes'}</SpecialInternalNotesForAgents>
+                          <SpecialInternalNotesForAgents>${special_notes}</SpecialInternalNotesForAgents>
                           <Location>${location}</Location>
                           <RentOrOwn>${rent_or_own}</RentOrOwn>
                           <YearlyIncome>${yearly_income}</YearlyIncome>
@@ -679,9 +700,9 @@ const ghltoVanillasoft = async (req, res) => {
                           <LosPhone>${location_phone}</LosPhone>
                           <LosName>${location_username}</LosName>
                           <LosCompany>${location_name}</LosCompany>
-                          <BookingLink>${'calendar_booking_link'}</BookingLink>
-                          <LiveTransferForm>${'live_transfer_form'}</LiveTransferForm>
-                          <ApptBookedForm>${'appt_booked_form'}</ApptBookedForm>
+                          <BookingLink>${calendar_booking_link}</BookingLink>
+                          <LiveTransferForm>${live_transfer_form}</LiveTransferForm>
+                          <ApptBookedForm>${appt_booked_form}</ApptBookedForm>
                           <Link>${live_transfer_link}</Link>
                           <DisabilityDischarged>${disability_discharged}</DisabilityDischarged>
                           <AssignedAgent>${agent_name}</AssignedAgent>
@@ -718,6 +739,7 @@ const lt = async (req, res) => {
 
 
             const response = await createContactNote(contact_id, contact_json, api_key);
+            const tagResponse = await addTagToContact(contact_id, api_key, 'live transfer in 90 seconds')
             console.log(response);
             res.sendStatus(200);
         } else {
