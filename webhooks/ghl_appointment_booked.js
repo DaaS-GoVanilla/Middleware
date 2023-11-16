@@ -33,12 +33,17 @@ async function ghlAptBooked(req, res) {
 
         if (exists) {
             const email = data.email;
-            const xml = `<Lead>
+            const booking_status = data['calendar']['status'];
+
+            if (booking_status == 'booked') {
+                const xml = `<Lead>
                     <Email>${email}</Email>
                     <CallFlag>False</CallFlag>
+                    <LeadStatus>Booked Appointment</LeadStatus>
                     </Lead>`;
 
-            await createLeadVS(xml);
+                await createLeadVS(xml);
+            }
         }
         else {
             return res.status(400).send('Location ID not found in keys');
