@@ -228,13 +228,12 @@ const ghlAptBooked = async (req, res) => {
 
     try {
         const data = req.body;
-
         if (!data) {
             return res.status(400).send('Missing data');
         }
 
 
-        const locationId = data.contact.ghl_location_id;
+        const locationId = data.location.id;
         const result = await getEntity(res, locationId);
         const api_key = result[0]['APIKey'];
 
@@ -253,8 +252,6 @@ const ghlAptBooked = async (req, res) => {
 
                 await createLeadVS(xml);
             }
-
-            await createLeadVS(xml);
         } else {
             console.log(`API key not found for location: ${location_id}`);
             return res.status(400).send('API key not found for location');
@@ -276,14 +273,14 @@ const ghlLoConversion = async (req, res) => {
         }
 
 
-        const location_id = data.customData.ghl_location_id;
+        const location_id = data.location.id;
         const result = await getEntity(res, location_id);
         const api_key = result[0]['APIKey'];
 
 
         if (api_key) {
 
-            const email = data.customData.email;
+            const email = data.email;
             const xml = `<Lead>
                     <Email>${email}</Email>
                     <CallFlag>False</CallFlag>
@@ -310,14 +307,14 @@ const ghlNoShow = async (req, res) => {
         }
 
 
-        const location_id = data.customData.ghl_location_id;
+        const location_id = data.location.id;
         const result = await getEntity(res, location_id);
         const api_key = result[0]['APIKey'];
 
 
         if (api_key) {
 
-            const email = data.customData.email;
+            const email = data.email;
             const xml = `<Lead>
                     <Email>${email}</Email>
                     <CallFlag>True</CallFlag>
@@ -344,7 +341,7 @@ const ghlProspectReplied = async (req, res) => {
         }
 
 
-        const location_id = data.customData.ghl_location_id;
+        const location_id = data.location.id;
 
         const result = await getEntity(res, location_id);
         console.log('result');
@@ -353,7 +350,7 @@ const ghlProspectReplied = async (req, res) => {
 
         if (api_key) {
 
-            const email = data.customData.email;
+            const email = data.email;
             console.log(email)
             const xml = `<Lead>
                     <Email>${email}</Email>
@@ -377,7 +374,7 @@ const liveTransfer = async (req, res) => {
     const contact_id = req.body.contact.ghl_contact_id;
     const location_id = req.body.contact.ghl_location_id;
     const comment = req.body.contact.comment
-    const result = await getEntity(location_id);
+    const result = await getEntity(res, location_id);
     const api_key = result[0]['APIKey'];
 
     try {
@@ -466,14 +463,12 @@ const ghltoVanillasoft = async (req, res) => {
             return res.status(400).send('Missing data');
         }
 
-
         const location_id = data['location']['id'];
 
         const result = await getEntity(res, location_id);
-        console.log('result');
         const api_key = result[0]['APIKey'];
         const calendar_booking_link = result[0]['CalendarLink'];
-        constspecial_notes = result[0]['SpecialNotes'];
+        const special_notes = result[0]['SpecialNotes'];
         const live_transfer_form = '';
         const appt_booked_form = '';
 
@@ -654,15 +649,13 @@ const ghltoVanillasoft = async (req, res) => {
             const agent_phone = data.user.phone;
 
             const location_json = await getLocationDetails(location_id, api_key);
-            const location_array = JSON.parse(location_json);
 
             const location_name = data.location.name;
-            const location_username = `${location_array.locations[0].firstName} ${location_array.locations[0].lastName}`;
-            const location_email = location_array.locations[0].email;
-            const location_phone = location_array.locations[0].phone;
+            const location_username = `${location_json.users[0].firstName} ${location_json.users[0].lastName}`;
+            const location_email = location_json.users[0].email;
+            const location_phone = location_json.users[0].phone;
 
             const live_transfer_link = `https://us-central1-vanillasoft-to-ghl.cloudfunctions.net/function-3/api/lt?data=${contact_id}:${location_id}`.replace(/\s/g, '')
-
 
             const xml = `<Lead>
                           <Email>${email}</Email>
@@ -710,7 +703,7 @@ const ghltoVanillasoft = async (req, res) => {
                         </Lead>`;
 
 
-
+            console.log(xml)
             await createLeadVS(xml);
         } else {
             console.log(`API key not found for location: ${location_id}`);
