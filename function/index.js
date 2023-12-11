@@ -486,7 +486,7 @@ const ghltoVanillasoft = async (req, res) => {
             let re_agent = '';
             let purchase_refinance;
             let own_a_home;
-            let zipcode;
+            let zipcode = '';
             let type_of_property;
             let year_purchased;
             let using_this;
@@ -581,7 +581,9 @@ const ghltoVanillasoft = async (req, res) => {
                     question.includes('Zip Code') ||
                     question.includes('RF 3. What is your home')
                 ) {
-                    zipcode = answer;
+                    if (answer) {
+                        zipcode = answer;
+                    }
                 } else if (
                     question.includes('Type of Property') ||
                     question.includes('RF 4.')
