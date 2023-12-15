@@ -17,8 +17,14 @@ functions.http('api', async (req, res) => {
         case '/api/callback':
             callBack(req, res);
             break;
+        case '/api/incontact':
+            inContact(req, res);
+            break;
+        case '/api/addtoisa':
+            addToISAQueue(req, res);
+            break;
         case '/api/ghlappointmentbooked':
-            ghlAptBooked(req, res); // test
+            ghlAptBooked(req, res);
             break;
         case '/api/ghlloconversation':
             ghlLoConversion(req, res);
@@ -355,6 +361,78 @@ const ghlProspectReplied = async (req, res) => {
             const xml = `<Lead>
                     <Email>${email}</Email>
                     <CallFlag>False</CallFlag>
+                    </Lead>`;
+
+            await createLeadVS(xml);
+        } else {
+            console.log(`API key not found for location: ${location_id}`);
+            return res.status(400).send('API key not found for location');
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send('Internal Server Error');
+    }
+}
+
+const inContact = async (req, res) => {
+    try {
+        const data = req.body;
+
+        if (!data) {
+            return res.status(400).send('Missing data');
+        }
+
+
+        const location_id = data.location.id;
+
+        const result = await getEntity(res, location_id);
+        console.log('result');
+        const api_key = result[0]['APIKey'];
+
+
+        if (api_key) {
+
+            const email = data.email;
+            console.log(email)
+            const xml = `<Lead>
+                    <Email>${email}</Email>
+                    <CallFlag>False</CallFlag>
+                    </Lead>`;
+
+            await createLeadVS(xml);
+        } else {
+            console.log(`API key not found for location: ${location_id}`);
+            return res.status(400).send('API key not found for location');
+        }
+    } catch (error) {
+        console.error(error);
+        return res.status(500).send('Internal Server Error');
+    }
+}
+
+const addToISAQueue = async (req, res) => {
+    try {
+        const data = req.body;
+
+        if (!data) {
+            return res.status(400).send('Missing data');
+        }
+
+
+        const location_id = data.location.id;
+
+        const result = await getEntity(res, location_id);
+        console.log('result');
+        const api_key = result[0]['APIKey'];
+
+
+        if (api_key) {
+
+            const email = data.email;
+            console.log(email)
+            const xml = `<Lead>
+                    <Email>${email}</Email>
+                    <CallFlag>True</CallFlag>
                     </Lead>`;
 
             await createLeadVS(xml);

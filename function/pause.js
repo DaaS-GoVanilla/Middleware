@@ -55,6 +55,7 @@ async function test() {
                 },
             }
         );
+
         // Find the Master Pipeline
         const masterPipeline = response.data.pipelines.find(pipeline => pipeline.name === "1. Master Pipeline");
 
@@ -79,7 +80,6 @@ async function test() {
 
                 await createLeadVS(xml);
             }
-
         }
 
     } catch (error) {
