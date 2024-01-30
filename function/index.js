@@ -111,6 +111,7 @@ async function createContactNote(contact_id, contact_json, api_key) {
 
 //function to parse xml
 function escapeXml(str) {
+    if (!str) return '';
     return str.replace(/[<>&"']/g, match => ({
         '<': '&lt;',
         '>': '&gt;',
@@ -270,6 +271,7 @@ const ghlAptBooked = async (req, res) => {
                     </Lead>`;
 
                 await createLeadVS(xml);
+                res.sendStatus(200);
             }
         } else {
             console.log(`API key not found for location: ${location_id}`);
@@ -307,6 +309,7 @@ const ghlLoConversion = async (req, res) => {
                     </Lead>`;
 
             await createLeadVS(xml);
+            res.sendStatus(200);
         } else {
             console.log(`API key not found for location: ${location_id}`);
             return res.status(400).send('API key not found for location');
@@ -342,6 +345,7 @@ const ghlNoShow = async (req, res) => {
                     </Lead>`;
 
             await createLeadVS(xml);
+            res.sendStatus(200);
         } else {
             console.log(`API key not found for location: ${location_id}`);
             return res.status(400).send('API key not found for location');
@@ -380,6 +384,7 @@ const ghlProspectReplied = async (req, res) => {
                     </Lead>`;
 
             await createLeadVS(xml);
+            res.sendStatus(200);
         } else {
             console.log(`API key not found for location: ${location_id}`);
             return res.status(400).send('API key not found for location');
@@ -417,6 +422,7 @@ const inContact = async (req, res) => {
                     </Lead>`;
 
             await createLeadVS(xml);
+            res.sendStatus(200);
         } else {
             console.log(`API key not found for location: ${location_id}`);
             return res.status(400).send('API key not found for location');
@@ -452,6 +458,7 @@ const addToISAQueue = async (req, res) => {
                     </Lead>`;
 
             await createLeadVS(xml);
+            res.sendStatus(200);
         } else {
             console.log(`API key not found for location: ${location_id}`);
             return res.status(400).send('API key not found for location');
@@ -832,6 +839,7 @@ const ghltoVanillasoft = async (req, res) => {
                         </Lead>`;
 
             await createLeadVS(xml);
+            res.sendStatus(200);
         } else {
             console.log(`API key not found for location: ${location_id}`);
             return res.status(400).send('API key not found for location');
