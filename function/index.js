@@ -56,7 +56,7 @@ functions.http('api', async (req, res) => {
 //global function to extract locationid
 const getEntity = async (res, locationId) => {
 
-    console.log(locationId);
+    console.log('locationId: ', locationId);
     const kind = 'Client'; // Specify your entity kind
 
     const query = datastore
@@ -91,7 +91,7 @@ async function getLocationDetails(location_id, api_key) {
 
 //global function to extract createContactNote
 async function createContactNote(contact_id, contact_json, api_key) {
-    console.log(contact_json)
+    console.log('Contact note: ', contact_json)
     try {
         const response = await axios.post(
             `https://rest.gohighlevel.com/v1/contacts/${contact_id}/notes/`,
@@ -122,6 +122,7 @@ function escapeXml(str) {
 
 //function to create Lead
 async function createLeadVS(xmlPayload) {
+    console.log('xml payload: ', xmlPayload);
     try {
         const response = await axios.post('https://vanillasoft.net/web/post.aspx?id=132529&typ=XML', xmlPayload, {
             headers: {
@@ -175,7 +176,7 @@ const badData = async (req, res) => {
 
             const response = await createContactNote(contact_id, contact_json, api_key);
             console.log(response);
-            res.sendStatus(200);
+            res.status(200).send('success');
         } else {
             console.log(`API key not found for location: ${location_id}`);
             res.status(404).send(`API key not found for location: ${location_id}`);
@@ -186,7 +187,7 @@ const badData = async (req, res) => {
 }
 //Case 2 - 'bookingMade'
 const bookingMade = async (req, res) => {
-
+    console.log(req.body);
     const contact_id = req.body.contact.ghl_contact_id;
     const location_id = req.body.contact.ghl_location_id;
     const result = await getEntity(res, location_id);
@@ -202,7 +203,7 @@ const bookingMade = async (req, res) => {
 
             const response = await createContactNote(contact_id, contact_json, api_key);
             console.log(response);
-            res.sendStatus(200);
+            res.status(200).send('success');
         } else {
             console.log(`API key not found for location: ${location_id}`);
             res.status(404).send(`API key not found for location: ${location_id}`);
@@ -214,7 +215,7 @@ const bookingMade = async (req, res) => {
 
 //Case 3 - 'callback'
 const callBack = async (req, res) => {
-
+    console.log(req.body);
     const contact_id = req.body.contact.ghl_contact_id;
     const location_id = req.body.contact.ghl_location_id;
     const result = await getEntity(res, location_id);
@@ -230,7 +231,7 @@ const callBack = async (req, res) => {
 
             const response = await createContactNote(contact_id, contact_json, api_key);
             console.log(response);
-            res.sendStatus(200);
+            res.status(200).send('success');
         } else {
             console.log(`API key not found for location: ${location_id}`);
             res.status(404).send(`API key not found for location: ${location_id}`);
@@ -245,6 +246,7 @@ const ghlAptBooked = async (req, res) => {
 
     try {
         const data = req.body;
+        console.log(req.body);
         if (!data) {
             return res.status(400).send('Missing data');
         }
@@ -284,6 +286,7 @@ const ghlAptBooked = async (req, res) => {
 const ghlLoConversion = async (req, res) => {
     try {
         const data = req.body;
+        console.log(req.body);
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -318,6 +321,7 @@ const ghlLoConversion = async (req, res) => {
 const ghlNoShow = async (req, res) => {
     try {
         const data = req.body;
+        console.log(req.body);
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -352,6 +356,7 @@ const ghlNoShow = async (req, res) => {
 const ghlProspectReplied = async (req, res) => {
     try {
         const data = req.body;
+        console.log(req.body);
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -388,6 +393,7 @@ const ghlProspectReplied = async (req, res) => {
 const inContact = async (req, res) => {
     try {
         const data = req.body;
+        console.log(req.body);
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -424,6 +430,7 @@ const inContact = async (req, res) => {
 const addToISAQueue = async (req, res) => {
     try {
         const data = req.body;
+        console.log(req.body);
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -433,14 +440,12 @@ const addToISAQueue = async (req, res) => {
         const location_id = data.location.id;
 
         const result = await getEntity(res, location_id);
-        console.log('result');
         const api_key = result[0]['APIKey'];
 
 
         if (api_key) {
 
             const email = data.email;
-            console.log(email)
             const xml = `<Lead>
                     <Email>${email}</Email>
                     <CallFlag>True</CallFlag>
@@ -459,7 +464,7 @@ const addToISAQueue = async (req, res) => {
 
 //Case 8 - 'live transfer'
 const liveTransfer = async (req, res) => {
-
+    console.log(req.body);
     const contact_id = req.body.contact.ghl_contact_id;
     const location_id = req.body.contact.ghl_location_id;
     const comment = req.body.contact.comment
@@ -505,7 +510,7 @@ const liveTransfer = async (req, res) => {
 
             const response = await createContactNote(contact_id, contact_json, api_key);
             console.log(update.data)
-            res.sendStatus(200);
+            res.send(200).send('success');
         } else {
             console.log(`API key not found for location: ${location_id}`);
             res.status(404).send(`API key not found for location: ${location_id}`);
@@ -533,7 +538,7 @@ const noAnswer = async (req, res) => {
 
             const response = await createContactNote(contact_id, contact_json, api_key);
             console.log(response);
-            res.sendStatus(200);
+            res.status(200).send('success');
         } else {
             console.log(`API key not found for location: ${location_id}`);
             res.status(404).send(`API key not found for location: ${location_id}`);
@@ -826,7 +831,6 @@ const ghltoVanillasoft = async (req, res) => {
                             <AssignedAgentPhone>${escapeXml(agent_phone)}</AssignedAgentPhone>
                         </Lead>`;
 
-            console.log(xml)
             await createLeadVS(xml);
         } else {
             console.log(`API key not found for location: ${location_id}`);
@@ -839,8 +843,8 @@ const ghltoVanillasoft = async (req, res) => {
 }
 
 const lt = async (req, res) => {
+    console.log(req.body)
     const query = req.query.data.split(':')
-
     const contact_id = query[0];
     const location_id = query[1];
     const result = await getEntity(res, location_id);
