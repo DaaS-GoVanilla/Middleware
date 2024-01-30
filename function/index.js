@@ -109,6 +109,17 @@ async function createContactNote(contact_id, contact_json, api_key) {
     }
 }
 
+//function to parse xml
+function escapeXml(str) {
+    return str.replace(/[<>&"']/g, match => ({
+        '<': '&lt;',
+        '>': '&gt;',
+        '&': '&amp;',
+        '"': '&quot;',
+        "'": '&apos;'
+    }[match]));
+}
+
 //function to create Lead
 async function createLeadVS(xmlPayload) {
     try {
@@ -536,6 +547,7 @@ const noAnswer = async (req, res) => {
 const ghltoVanillasoft = async (req, res) => {
     try {
         const data = req.body;
+        console.log(data);
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -555,25 +567,25 @@ const ghltoVanillasoft = async (req, res) => {
             let military_branch = '';
             let location = '';
             let rent_or_own = '';
-            let yearly_income;
-            let est_credit_score;
-            let employment_status;
+            let yearly_income = '';
+            let est_credit_score = '';
+            let employment_status = '';
             let timeline = '';
-            let loan_amount;
-            let down_payment;
+            let loan_amount = '';
+            let down_payment = '';
             let re_agent = '';
-            let purchase_refinance;
-            let own_a_home;
+            let purchase_refinance = '';
+            let own_a_home = '';
             let zipcode = '';
-            let type_of_property;
-            let year_purchased;
-            let using_this;
-            let property_worth;
-            let mortgage_owe;
-            let purpose;
-            let cash_out_amount;
-            let interest_rate;
-            let disability_discharged;
+            let type_of_property = '';
+            let year_purchased = '';
+            let using_this = '';
+            let property_worth = '';
+            let mortgage_owe = '';
+            let purpose = '';
+            let cash_out_amount = '';
+            let interest_rate = '';
+            let disability_discharged = '';
 
             for (const [question, answer] of Object.entries(data)) {
                 if (
@@ -596,7 +608,9 @@ const ghltoVanillasoft = async (req, res) => {
                     question.includes('RF 15.') ||
                     question.includes('V2 - 16.')
                 ) {
-                    yearly_income = answer;
+                    if (answer) {
+                        yearly_income = answer;
+                    }
                 } else if (
                     question.includes('Estimated Credit Score') ||
                     question.includes('Credit Score') ||
@@ -604,12 +618,16 @@ const ghltoVanillasoft = async (req, res) => {
                     question.includes('RF 13. What') ||
                     question.includes('V2 - 13.')
                 ) {
-                    est_credit_score = answer;
+                    if (answer) {
+                        est_credit_score = answer;
+                    }
                 } else if (
                     question.includes('Employment Status') ||
                     question.includes('V2 - 14. What')
                 ) {
-                    employment_status = answer;
+                    if (answer) {
+                        employment_status = answer;
+                    }
                 } else if (
                     question.includes('Timeline') ||
                     question.includes('RF 12. When are you planning') ||
@@ -632,12 +650,16 @@ const ghltoVanillasoft = async (req, res) => {
                     question.includes('Loan Amount') ||
                     question.includes('PR 3.')
                 ) {
-                    loan_amount = answer;
+                    if (answer) {
+                        loan_amount = answer;
+                    }
                 } else if (
                     question.includes('Down Payment') ||
                     question.includes('PR 5. What Is Your Estimated Down')
                 ) {
-                    down_payment = answer;
+                    if (answer) {
+                        down_payment = answer;
+                    }
                 } else if (
                     question.includes('RE Agent') ||
                     question.includes('Purchase 4. TCH')
@@ -649,12 +671,16 @@ const ghltoVanillasoft = async (req, res) => {
                     question.includes('Purchase/Refinance') ||
                     question.includes('PR 1. Are')
                 ) {
-                    purchase_refinance = answer;
+                    if (answer) {
+                        purchase_refinance = answer;
+                    }
                 } else if (
                     question.includes('Own A Home') ||
                     question.includes('RF 1. Do you currently own a home')
                 ) {
-                    own_a_home = answer;
+                    if (answer) {
+                        own_a_home = answer;
+                    }
                 } else if (
                     question.includes('Zip Code') ||
                     question.includes('RF 3. What is your home')
@@ -666,43 +692,59 @@ const ghltoVanillasoft = async (req, res) => {
                     question.includes('Type of Property') ||
                     question.includes('RF 4.')
                 ) {
-                    type_of_property = answer;
+                    if (answer) {
+                        type_of_property = answer;
+                    }
                 } else if (
                     question.includes('Year Purchased') ||
                     question.includes('RF 5. When was your property purchased')
                 ) {
-                    year_purchased = answer;
+                    if (answer) {
+                        year_purchased = answer;
+                    }
                 } else if (
                     question.includes('Using This Home') ||
                     question.includes('RF 6. How are you using this home')
                 ) {
-                    using_this = answer;
+                    if (answer) {
+                        using_this = answer;
+                    }
                 } else if (
                     question.includes('Property Worth') ||
                     question.includes('RF 7. How')
                 ) {
-                    property_worth = answer;
+                    if (answer) {
+                        property_worth = answer;
+                    }
                 } else if (
                     question.includes('Mortgage Owe') ||
                     question.includes('RF 8.')
                 ) {
-                    mortgage_owe = answer;
+                    if (answer) {
+                        mortgage_owe = answer;
+                    }
                 } else if (
                     question.includes('Purpose') ||
                     question.includes('what is your')
                 ) {
-                    purpose = answer;
+                    if (answer) {
+                        purpose = answer;
+                    }
                 } else if (
                     question.includes('Cash Out Amount') ||
                     question.includes('RF 10. How') ||
                     question.includes('RF 9. Are you looking to take cash out for debt consolidation')
                 ) {
-                    cash_out_amount = answer;
+                    if (answer) {
+                        cash_out_amount = answer;
+                    }
                 } else if (
                     question.includes('Interest Rate') ||
                     question.includes('RF 11.')
                 ) {
-                    interest_rate = answer;
+                    if (answer) {
+                        interest_rate = answer;
+                    }
                 } else if (
                     question.includes('Military Branch') ||
                     question.includes('RF 2.0 VA')
@@ -714,7 +756,9 @@ const ghltoVanillasoft = async (req, res) => {
                     question.includes('Disability Discharged') ||
                     question.includes('PR 8. VA')
                 ) {
-                    disability_discharged = answer;
+                    if (answer) {
+                        disability_discharged = answer;
+                    }
                 }
             }
 
@@ -738,50 +782,49 @@ const ghltoVanillasoft = async (req, res) => {
             const live_transfer_link = `https://us-central1-vanillasoft-to-ghl.cloudfunctions.net/function-3/api/lt?data=${contact_id}:${location_id}`.replace(/\s/g, '')
 
             const xml = `<Lead>
-                          <Email>${email}</Email>
-                          <FirstName>${first_name}</FirstName>
-                          <LastName>${last_name}</LastName>
-                          <Mobile>${phone}</Mobile>
-                          <LeadSourceName>${source}</LeadSourceName>
-                          <Campaign>${campaign}</Campaign>
-                          <GhlLocationID>${location_id}</GhlLocationID>
-                          <GhlClientID>${contact_id}</GhlClientID>
-                          <SpecialInternalNotesForAgents>${special_notes}</SpecialInternalNotesForAgents>
-                          <Location>${location}</Location>
-                          <RentOrOwn>${rent_or_own}</RentOrOwn>
-                          <YearlyIncome>${yearly_income}</YearlyIncome>
-                          <EstimatedCreditScore>${est_credit_score}</EstimatedCreditScore>
-                          <EmploymentStatus>${employment_status}</EmploymentStatus>
-                          <Timeline>${timeline}</Timeline>
-                          <LoanAmount>${loan_amount}</LoanAmount>
-                          <DownPayment>${down_payment}</DownPayment>
-                          <ReAgent>${re_agent}</ReAgent>
-                          <PurchaseRefinance>${purchase_refinance}</PurchaseRefinance>
-                          <OwnAHome>${own_a_home}</OwnAHome>
-                          <ZipCode>${zipcode}</ZipCode>
-                          <ZipCodeT>${zipcode}</ZipCodeT>
-                          <TypeOfProperty>${type_of_property}</TypeOfProperty>
-                          <YearPurchased>${year_purchased}</YearPurchased>
-                          <UsingThisHome>${using_this}</UsingThisHome>
-                          <PropertyWorth>${property_worth}</PropertyWorth>
-                          <MortgageOwe>${mortgage_owe}</MortgageOwe>
-                          <Purpose>${purpose}</Purpose>
-                          <CashOutAmount>${cash_out_amount}</CashOutAmount>
-                          <InterestRate>${interest_rate}</InterestRate>
-                          <MilitaryBranch>${military_branch}</MilitaryBranch>
-                          <LosEmail>${location_email}</LosEmail>
-                          <LosPhone>${location_phone}</LosPhone>
-                          <LosName>${location_username}</LosName>
-                          <LosCompany>${location_name}</LosCompany>
-                          <BookingLink>${calendar_booking_link}</BookingLink>
-                          <LiveTransferForm>${live_transfer_form}</LiveTransferForm>
-                          <ApptBookedForm>${appt_booked_form}</ApptBookedForm>
-                          <Link>${live_transfer_link}</Link>
-                          <DisabilityDischarged>${disability_discharged}</DisabilityDischarged>
-                          <AssignedAgent>${agent_name}</AssignedAgent>
-                          <AssignedAgentPhone>${agent_phone}</AssignedAgentPhone>
+                            <Email>${escapeXml(email)}</Email>
+                            <FirstName>${escapeXml(first_name)}</FirstName>
+                            <LastName>${escapeXml(last_name)}</LastName>
+                            <Mobile>${escapeXml(phone)}</Mobile>
+                            <LeadSourceName>${escapeXml(source)}</LeadSourceName>
+                            <Campaign>${escapeXml(campaign)}</Campaign>
+                            <GhlLocationID>${escapeXml(location_id)}</GhlLocationID>
+                            <GhlClientID>${escapeXml(contact_id)}</GhlClientID>
+                            <SpecialInternalNotesForAgents>${escapeXml(special_notes)}</SpecialInternalNotesForAgents>
+                            <Location>${escapeXml(location)}</Location>
+                            <RentOrOwn>${escapeXml(rent_or_own)}</RentOrOwn>
+                            <YearlyIncome>${escapeXml(yearly_income)}</YearlyIncome>
+                            <EstimatedCreditScore>${escapeXml(est_credit_score)}</EstimatedCreditScore>
+                            <EmploymentStatus>${escapeXml(employment_status)}</EmploymentStatus>
+                            <Timeline>${escapeXml(timeline)}</Timeline>
+                            <LoanAmount>${escapeXml(loan_amount)}</LoanAmount>
+                            <DownPayment>${escapeXml(down_payment)}</DownPayment>
+                            <ReAgent>${escapeXml(re_agent)}</ReAgent>
+                            <PurchaseRefinance>${escapeXml(purchase_refinance)}</PurchaseRefinance>
+                            <OwnAHome>${escapeXml(own_a_home)}</OwnAHome>
+                            <ZipCode>${escapeXml(zipcode)}</ZipCode>
+                            <ZipCodeT>${escapeXml(zipcode)}</ZipCodeT>
+                            <TypeOfProperty>${escapeXml(type_of_property)}</TypeOfProperty>
+                            <YearPurchased>${escapeXml(year_purchased)}</YearPurchased>
+                            <UsingThisHome>${escapeXml(using_this)}</UsingThisHome>
+                            <PropertyWorth>${escapeXml(property_worth)}</PropertyWorth>
+                            <MortgageOwe>${escapeXml(mortgage_owe)}</MortgageOwe>
+                            <Purpose>${escapeXml(purpose)}</Purpose>
+                            <CashOutAmount>${escapeXml(cash_out_amount)}</CashOutAmount>
+                            <InterestRate>${escapeXml(interest_rate)}</InterestRate>
+                            <MilitaryBranch>${escapeXml(military_branch)}</MilitaryBranch>
+                            <LosEmail>${escapeXml(location_email)}</LosEmail>
+                            <LosPhone>${escapeXml(location_phone)}</LosPhone>
+                            <LosName>${escapeXml(location_username)}</LosName>
+                            <LosCompany>${escapeXml(location_name)}</LosCompany>
+                            <BookingLink>${escapeXml(calendar_booking_link)}</BookingLink>
+                            <LiveTransferForm>${escapeXml(live_transfer_form)}</LiveTransferForm>
+                            <ApptBookedForm>${escapeXml(appt_booked_form)}</ApptBookedForm>
+                            <Link>${escapeXml(live_transfer_link)}</Link>
+                            <DisabilityDischarged>${escapeXml(disability_discharged)}</DisabilityDischarged>
+                            <AssignedAgent>${escapeXml(agent_name)}</AssignedAgent>
+                            <AssignedAgentPhone>${escapeXml(agent_phone)}</AssignedAgentPhone>
                         </Lead>`;
-
 
             console.log(xml)
             await createLeadVS(xml);
