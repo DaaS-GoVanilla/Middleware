@@ -123,7 +123,7 @@ function escapeXml(str) {
 
 //function to create Lead
 async function createLeadVS(xmlPayload) {
-    console.log('xml payload: ', xmlPayload);
+    console.log('xml payload: ', xmlPayload.replace(/\n/g, ' '));
     try {
         const response = await axios.post('https://vanillasoft.net/web/post.aspx?id=132529&typ=XML', xmlPayload, {
             headers: {
@@ -161,7 +161,7 @@ async function addTagToContact(contactId, apiKey, tag) {
 
 //Case 1 - 'baddata'
 const badData = async (req, res) => {
-    console.log(req.body);
+    console.log(JSON.stringify(req.body));
     const contact_id = req.body.contact.ghl_contact_id;
     const location_id = req.body.contact.ghl_location_id;
     const result = await getEntity(res, location_id);
@@ -188,7 +188,7 @@ const badData = async (req, res) => {
 }
 //Case 2 - 'bookingMade'
 const bookingMade = async (req, res) => {
-    console.log(req.body);
+    console.log(JSON.stringify(req.body));
     const contact_id = req.body.contact.ghl_contact_id;
     const location_id = req.body.contact.ghl_location_id;
     const result = await getEntity(res, location_id);
@@ -216,7 +216,7 @@ const bookingMade = async (req, res) => {
 
 //Case 3 - 'callback'
 const callBack = async (req, res) => {
-    console.log(req.body);
+    console.log(JSON.stringify(req.body));
     const contact_id = req.body.contact.ghl_contact_id;
     const location_id = req.body.contact.ghl_location_id;
     const result = await getEntity(res, location_id);
@@ -247,7 +247,7 @@ const ghlAptBooked = async (req, res) => {
 
     try {
         const data = req.body;
-        console.log(req.body);
+        console.log(JSON.stringify(req.body));
         if (!data) {
             return res.status(400).send('Missing data');
         }
@@ -261,18 +261,17 @@ const ghlAptBooked = async (req, res) => {
         if (api_key) {
 
             const email = data.email;
-            const booking_status = data['calendar']['status'];
-
-            if (booking_status == 'booked') {
-                const xml = `<Lead>
+            // const booking_status = data['calendar']['status']; throwing error for some client //
+            // if (booking_status == 'booked') {
+            // }
+            const xml = `<Lead>
                     <Email>${email}</Email>
                     <CallFlag>False</CallFlag>
                     <LeadStatus>Booked Appointment</LeadStatus>
                     </Lead>`;
 
-                await createLeadVS(xml);
-                res.sendStatus(200);
-            }
+            await createLeadVS(xml);
+            res.sendStatus(200);
         } else {
             console.log(`API key not found for location: ${location_id}`);
             return res.status(400).send('API key not found for location');
@@ -288,7 +287,7 @@ const ghlAptBooked = async (req, res) => {
 const ghlLoConversion = async (req, res) => {
     try {
         const data = req.body;
-        console.log(req.body);
+        console.log(JSON.stringify(req.body));
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -324,7 +323,7 @@ const ghlLoConversion = async (req, res) => {
 const ghlNoShow = async (req, res) => {
     try {
         const data = req.body;
-        console.log(req.body);
+        console.log(JSON.stringify(req.body));
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -360,7 +359,7 @@ const ghlNoShow = async (req, res) => {
 const ghlProspectReplied = async (req, res) => {
     try {
         const data = req.body;
-        console.log(req.body);
+        console.log(JSON.stringify(req.body));
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -398,7 +397,7 @@ const ghlProspectReplied = async (req, res) => {
 const inContact = async (req, res) => {
     try {
         const data = req.body;
-        console.log(req.body);
+        console.log(JSON.stringify(req.body));
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -436,7 +435,7 @@ const inContact = async (req, res) => {
 const addToISAQueue = async (req, res) => {
     try {
         const data = req.body;
-        console.log(req.body);
+        console.log(JSON.stringify(req.body));
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -471,7 +470,7 @@ const addToISAQueue = async (req, res) => {
 
 //Case 8 - 'live transfer'
 const liveTransfer = async (req, res) => {
-    console.log(req.body);
+    console.log(JSON.stringify(req.body));
     const contact_id = req.body.contact.ghl_contact_id;
     const location_id = req.body.contact.ghl_location_id;
     const comment = req.body.contact.comment
@@ -529,7 +528,7 @@ const liveTransfer = async (req, res) => {
 
 //Case 8 - 'no answer'
 const noAnswer = async (req, res) => {
-    console.log(req.body);
+    console.log(JSON.stringify(req.body));
     const contact_id = req.body.contact.ghl_contact_id;
     const location_id = req.body.contact.ghl_location_id;
     const result = await getEntity(res, location_id);
@@ -559,7 +558,7 @@ const noAnswer = async (req, res) => {
 const ghltoVanillasoft = async (req, res) => {
     try {
         const data = req.body;
-        console.log(data);
+        console.log(JSON.stringify(req.body));
 
         if (!data) {
             return res.status(400).send('Missing data');
@@ -851,7 +850,7 @@ const ghltoVanillasoft = async (req, res) => {
 }
 
 const lt = async (req, res) => {
-    console.log(req.body)
+    console.log(JSON.stringify(req.body));
     const query = req.query.data.split(':')
     const contact_id = query[0];
     const location_id = query[1];
