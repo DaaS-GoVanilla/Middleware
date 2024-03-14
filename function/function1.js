@@ -1,6 +1,8 @@
 const functions = require('@google-cloud/functions-framework');
 const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 const { Datastore } = require('@google-cloud/datastore');
+const axios = require('axios')
+
 
 const secretManagerServiceClient = new SecretManagerServiceClient();
 const name = 'projects/644933129552/secrets/userLogin/versions/1';
@@ -40,7 +42,35 @@ functions.http('middleware', async (req, res) => {
             res.status(404).send('User not found');
         }
     } else if (path === "/middleware/pause") {
-        const body = req.body;
+        const action = req.body.action;
+        const apiKey = req.body.APIKey
+
+        try {
+            if (action === 'Pause') {
+                await pause(apiKey);
+            } else {
+                await unpause(apiKey);
+            }
+            const kind = 'Client';
+            const key = datastore.key([kind, apiKey]);
+            const [entity] = await datastore.get(key);
+            await datastore.save({
+                key: key,
+                data: {
+                    APIKey: apiKey,
+                    CalendarLink: entity['CalendarLink'],
+                    ClientCompanyName: entity['ClientCompanyName'],
+                    LocationID: entity['LocationID'],
+                    SpecialNotes: entity['SpecialNotes'],
+                    Active: action === 'Pause' ? 'False' : 'True'
+                }
+            });
+
+            res.status(200).send('Action completed successfully');
+        } catch (error) {
+            console.log(error)
+            res.status(500).send('Error occurred');
+        }
 
     } else if (method === 'POST') {
         // Create Entity
@@ -97,3 +127,165 @@ functions.http('middleware', async (req, res) => {
         res.status(405).send('Method not allowed');
     }
 });
+
+async function fetchPausedContacts(url, api_key, count, contact, stageObject) {
+    const response = await axios.get(
+        url,
+        {
+            headers: {
+                Authorization: `Bearer ${api_key}`,
+            },
+        }
+    );
+    const opportunities = response.data.opportunities;
+    const nextPageUrl = response.data.meta.nextPageUrl;
+    const totalMeta = response.data.meta.total;
+
+    // Process opportunities (e.g., extract pipelineStageId and email)
+    opportunities.forEach(opportunity => {
+        count = count + 1;
+        const pipelineStageId = opportunity.pipelineStageId;
+        if (pipelineStageId === stageObject['Leads In'] || pipelineStageId === stageObject['Add to ISA Queue'] || pipelineStageId === stageObject['No Show']) {
+            const email = opportunity.contact.email;
+            contact.push(email);
+        }
+    });
+
+    if (count < totalMeta) {
+        return await fetchPausedContacts(nextPageUrl, api_key, count, contact, stageObject);
+    } else {
+        return contact;
+    }
+}
+
+async function fetchPipelineContacts(url, api_key, count, contact) {
+    const response = await axios.get(
+        url,
+        {
+            headers: {
+                Authorization: `Bearer ${api_key}`,
+            },
+        }
+    );
+    const opportunities = response.data.opportunities;
+    const nextPageUrl = response.data.meta.nextPageUrl;
+    const totalMeta = response.data.meta.total;
+
+    // Process opportunities (e.g., extract pipelineStageId and email)
+    opportunities.forEach(opportunity => {
+        count = count + 1;
+        const pipelineStageId = opportunity.pipelineStageId;
+        const email = opportunity.contact.email;
+        contact.push(email);
+    });
+
+    if (count < totalMeta) {
+        return await fetchPipelineContacts(nextPageUrl, api_key, count, contact);
+    } else {
+        return contact;
+    }
+}
+
+async function createLeadVS(xmlPayload) {
+    try {
+        const response = await axios.post('https://vanillasoft.net/web/post.aspx?id=132529&typ=XML', xmlPayload, {
+            headers: {
+                'Content-Type': 'application/xml',
+            },
+        });
+        console.log(JSON.stringify(response.data));
+        return response.data;
+    } catch (error) {
+        console.error(error);
+        throw error;
+    }
+}
+
+async function pause(apiKey) {
+    try {
+        const api_key = apiKey;
+        const response = await axios.get(
+            `https://rest.gohighlevel.com/v1/pipelines`,
+            {
+                headers: {
+                    Authorization: `Bearer ${api_key}`,
+                },
+            }
+        );
+
+        // Find the Master Pipeline
+        const masterPipeline = response.data.pipelines.find(pipeline => pipeline.name === "1. Master Pipeline");
+
+        // Create an object with stage name as key and stage id as value
+        const stageObject = masterPipeline.stages.reduce((acc, stage) => {
+            acc[stage.name] = stage.id;
+            return acc;
+        }, {});
+
+
+        contact = await fetchPipelineContacts(`https://rest.gohighlevel.com/v1/pipelines/${masterPipeline.id}/opportunities`, api_key, 0, []);
+        console.log(contact)
+
+        for (let index = 0; index < contact.length; index++) {
+            const email = contact[index];
+            if (email) {
+                console.log(email)
+                const xml = `<Lead>
+                            <Email>${email}</Email>
+                            <CallFlag>False</CallFlag>
+                            </Lead>`;
+
+                await createLeadVS(xml);
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}
+
+async function unpause(apiKey) {
+    try {
+
+        const api_key = apiKey;
+        const response = await axios.get(
+            `https://rest.gohighlevel.com/v1/pipelines`,
+            {
+                headers: {
+                    Authorization: `Bearer ${api_key}`,
+                },
+            }
+        );
+
+        // Find the Master Pipeline
+        const masterPipeline = response.data.pipelines.find(pipeline => pipeline.name === "1. Master Pipeline");
+
+        // Create an object with stage name as key and stage id as value
+        const stageObject = masterPipeline.stages.reduce((acc, stage) => {
+            acc[stage.name] = stage.id;
+            return acc;
+        }, {});
+
+
+        contact = await fetchPausedContacts(`https://rest.gohighlevel.com/v1/pipelines/${masterPipeline.id}/opportunities`, api_key, 0, [], stageObject);
+        console.log(contact)
+
+        for (let index = 0; index < contact.length; index++) {
+            const email = contact[index];
+            if (email) {
+                console.log(email)
+                const xml = `<Lead>
+                            <Email>${email}</Email>
+                            <CallFlag>True</CallFlag>
+                            </Lead>`;
+
+                await createLeadVS(xml);
+            }
+        }
+
+    } catch (error) {
+        console.log(error);
+        throw error;
+    }
+}

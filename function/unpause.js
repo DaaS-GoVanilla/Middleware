@@ -1,6 +1,6 @@
 const axios = require('axios')
 
-async function fetchContacts(url, api_key, count, contact, stageObject) {
+async function fetchPausedContacts(url, api_key, count, contact, stageObject) {
     const response = await axios.get(
         url,
         {
@@ -24,7 +24,7 @@ async function fetchContacts(url, api_key, count, contact, stageObject) {
     });
 
     if (count < totalMeta) {
-        return await fetchContacts(nextPageUrl, api_key, count, contact, stageObject);
+        return await fetchPausedContacts(nextPageUrl, api_key, count, contact, stageObject);
     } else {
         return contact;
     }
@@ -68,7 +68,7 @@ async function test() {
         }, {});
 
 
-        contact = await fetchContacts(`https://rest.gohighlevel.com/v1/pipelines/${masterPipeline.id}/opportunities`, api_key, 0, [], stageObject);
+        contact = await fetchPausedContacts(`https://rest.gohighlevel.com/v1/pipelines/${masterPipeline.id}/opportunities`, api_key, 0, [], stageObject);
         console.log(contact)
 
         for (let index = 0; index < contact.length; index++) {

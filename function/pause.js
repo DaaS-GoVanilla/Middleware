@@ -1,6 +1,6 @@
 const axios = require('axios')
 
-async function fetchContacts(url, api_key, count, contact) {
+async function fetchPipelineContacts(url, api_key, count, contact) {
     const response = await axios.get(
         url,
         {
@@ -22,7 +22,7 @@ async function fetchContacts(url, api_key, count, contact) {
     });
 
     if (count < totalMeta) {
-        return await fetchContacts(nextPageUrl, api_key, count, contact);
+        return await fetchPipelineContacts(nextPageUrl, api_key, count, contact);
     } else {
         return contact;
     }
@@ -45,7 +45,6 @@ async function createLeadVS(xmlPayload) {
 
 async function test() {
     try {
-
         const api_key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJsb2NhdGlvbl9pZCI6ImV1SFlyN2t6SHlYUk9qWjF4SXlKIiwiY29tcGFueV9pZCI6Ik5yeFhrQ1U2d0psWG04RGw1Y2VLIiwidmVyc2lvbiI6MSwiaWF0IjoxNjU0ODEyMjUzNDQ4LCJzdWIiOiIxcUNnYjN1a3BYRnlSTjBWajluVCJ9.lyiLflISk8CHP7tqk4vhKowJy1Fq03SQm-00m0NE5Pc'
         const response = await axios.get(
             `https://rest.gohighlevel.com/v1/pipelines`,
@@ -66,7 +65,7 @@ async function test() {
         }, {});
 
 
-        contact = await fetchContacts(`https://rest.gohighlevel.com/v1/pipelines/${masterPipeline.id}/opportunities`, api_key, 0, []);
+        contact = await fetchPipelineContacts(`https://rest.gohighlevel.com/v1/pipelines/${masterPipeline.id}/opportunities`, api_key, 0, []);
         console.log(contact)
 
         for (let index = 0; index < contact.length; index++) {
