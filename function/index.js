@@ -407,7 +407,6 @@ const inContact = async (req, res) => {
         const location_id = data.location.id;
 
         const result = await getEntity(res, location_id);
-        console.log('result');
         const api_key = result[0]['APIKey'];
 
 
@@ -786,9 +785,10 @@ const ghltoVanillasoft = async (req, res) => {
             const location_json = await getLocationDetails(location_id, api_key);
 
             const location_name = data.location.name;
-            const location_username = `${location_json.users[0].firstName} ${location_json.users[0].lastName}`;
-            const location_email = location_json.users[0].email;
-            const location_phone = location_json.users[0].phone;
+            const adminUsers = location_json.users.filter(user => user.roles && user.roles.role === 'admin');
+            const location_username = `${adminUsers[0].firstName} ${adminUsers[0].lastName}`;
+            const location_email = adminUsers[0].email;
+            const location_phone = adminUsers[0].phone;
 
             const live_transfer_link = `https://us-central1-vanillasoft-to-ghl.cloudfunctions.net/function-3/api/lt?data=${contact_id}:${location_id}`.replace(/\s/g, '')
 
